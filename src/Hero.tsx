@@ -8,6 +8,7 @@ import {
   rem,
 } from "@mantine/core";
 import { CalendarTime, Plus, TargetArrow } from "tabler-icons-react";
+import { Interval } from "luxon";
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -101,7 +102,7 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function Hero() {
+export default function Hero({ intervals }: { intervals: Interval[] }) {
   const { classes } = useStyles();
   return (
     <Group className={classes.root}>

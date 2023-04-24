@@ -7,11 +7,13 @@ import {
   Title,
   createStyles,
 } from "@mantine/core";
+import { useListState } from "@mantine/hooks";
 // icons from https://tabler-icons-react.vercel.app/
 import { BuildingBank } from "tabler-icons-react";
 import { useThemeDetector } from "./utils/useThemeDetector";
 import Hero from "./Hero";
-import Entries from "./Entries";
+import ReportByDay from "./ReportByDay";
+import { DateTime, Interval } from "luxon";
 
 const useStyles = createStyles((theme) => ({
   listItem: {
@@ -26,6 +28,24 @@ export default function App() {
   document.title = "Time Bank";
   const isDarkTheme = useThemeDetector();
   const { classes } = useStyles();
+  const [intervals, intervalsHandlers] = useListState<Interval>([
+    Interval.fromDateTimes(
+      DateTime.fromISO("2023-04-24T10:00:00"),
+      DateTime.fromISO("2023-04-24T15:45:00")
+    ),
+    Interval.fromDateTimes(
+      DateTime.fromISO("2023-04-07T08:00:00"),
+      DateTime.fromISO("2023-04-07T09:30:00")
+    ),
+    Interval.fromDateTimes(
+      DateTime.fromISO("2023-04-07T11:30:00"),
+      DateTime.fromISO("2023-04-07T14:00:00")
+    ),
+    Interval.fromDateTimes(
+      DateTime.fromISO("2023-04-07T15:00:00"),
+      DateTime.fromISO("2023-04-07T19:45:00")
+    ),
+  ]);
   return (
     <MantineProvider
       withGlobalStyles
@@ -49,8 +69,8 @@ export default function App() {
         }
       >
         <Container p={0}>
-          <Hero/>
-          <Entries/>
+          <Hero intervals={intervals} />
+          <ReportByDay intervals={intervals} />
         </Container>
       </AppShell>
     </MantineProvider>

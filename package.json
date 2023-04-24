@@ -16,6 +16,7 @@
     "@types/react": "^18.0.38",
     "@types/react-dom": "^18.0.11",
     "dayjs": "^1.11.7",
+    "luxon": "^3.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tabler-icons-react": "^1.56.0",
@@ -35,6 +36,7 @@
     "workbox-streams": "^6.5.4"
   },
   "devDependencies": {
+    "@types/luxon": "^3.3.0",
     "react-scripts": "5.0.1"
   },
   "scripts": {

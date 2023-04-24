@@ -1,7 +1,8 @@
 import { Accordion, ActionIcon, Flex, Group, Table, Text } from "@mantine/core";
+import { Interval } from "luxon";
 import { Trash } from "tabler-icons-react";
 
-export default function Entries() {
+export default function ReportByDay({ intervals }: { intervals: Interval[] }) {
   return (
     <Accordion variant="separated">
       <Accordion.Item value="2023 Apr 22">
