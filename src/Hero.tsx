@@ -8,7 +8,7 @@ import {
   rem,
 } from "@mantine/core";
 import { CalendarTime, Plus, TargetArrow } from "tabler-icons-react";
-import { Interval } from "luxon";
+import { DateTime, Duration, Interval } from "luxon";
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -51,8 +51,12 @@ const useStyles = createStyles((theme) => ({
     lineHeight: 1.2,
   },
 
-  balance: {
+  negativeBalance: {
     color: theme.colors.red[6],
+  },
+
+  positiveBalance: {
+    color: theme.colors.teal[6],
   },
 
   goal: {
@@ -102,8 +106,49 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export default function Hero({ intervals }: { intervals: Interval[] }) {
+interface HeroProps {
+  intervals: Interval[];
+  dailyGoal: Duration;
+}
+
+export default function Hero({ intervals, dailyGoal }: HeroProps) {
   const { classes } = useStyles();
+
+  const dates = new Set<string>();
+  let totalWorked = Duration.fromISOTime("00:00:00.000");
+  let totalWorkedToday = Duration.fromISOTime("00:00:00.000");
+
+  for (const interval of intervals) {
+    const date = interval.start;
+    dates.add(date?.toISODate() || "");
+    if (date?.hasSame(DateTime.now(), "day")) { // isToday
+      totalWorkedToday = interval.toDuration().plus(totalWorkedToday);
+    }
+    totalWorked = interval.toDuration().plus(totalWorked);
+  }
+
+  const totalWorkedMillis = totalWorked.toMillis();
+  const dailyGoalMillis = dailyGoal.toMillis();
+  const balanceMillis = totalWorkedMillis - dailyGoalMillis * dates.size;
+  const sign = balanceMillis < 0 ? "-" : " ";
+  const balance =
+    Duration.fromMillis(Math.abs(balanceMillis)).toISOTime() || "00:00:00.000";
+  const [balanceHours, balanceMinutes] = balance.split(":");
+
+  const previousWorkedMillis = totalWorkedMillis - totalWorkedToday.toMillis();
+  const previousBalanceMillis =
+    totalWorkedMillis !== previousWorkedMillis
+      ? previousWorkedMillis - dailyGoalMillis * (dates.size - 1)
+      : balanceMillis;
+
+  const goal = Duration.fromMillis(
+    0.5 * (dailyGoalMillis - previousBalanceMillis) + 0.5 * dailyGoalMillis
+  );
+  const percentageWorkedToday =
+    (totalWorkedToday.toMillis() / goal.toMillis()) * 100;
+  const goalString = goal.toISOTime() || "00:00:00.000";
+  const [goalHours, goalMinutes] = goalString.split(":");
+
   return (
     <Group className={classes.root}>
       <Group sx={{ justifyContent: "center" }}>
@@ -123,8 +168,15 @@ export default function Hero({ intervals }: { intervals: Interval[] }) {
           </div>
           <div>
             <Text className={classes.label}>Balance</Text>
-            <Text fz="xs" className={classes.balance}>
-              <span className={classes.value}>-1:43</span>
+            <Text
+              fz="xs"
+              className={
+                sign === "-" ? classes.negativeBalance : classes.positiveBalance
+              }
+            >
+              <span
+                className={classes.value}
+              >{`${sign}${balanceHours}:${balanceMinutes}`}</span>
             </Text>
           </div>
         </Paper>
@@ -139,7 +191,7 @@ export default function Hero({ intervals }: { intervals: Interval[] }) {
             size={80}
             roundCaps
             thickness={8}
-            sections={[{ value: 66, color: "blue" }]}
+            sections={[{ value: percentageWorkedToday, color: "blue" }]}
             label={
               <Flex justify={"center"} align={"center"}>
                 <TargetArrow
@@ -153,7 +205,9 @@ export default function Hero({ intervals }: { intervals: Interval[] }) {
           <div>
             <Text className={classes.label}>Goal</Text>
             <Text fz="xs" className={classes.goal}>
-              <span className={classes.value}>9:43</span>
+              <span
+                className={classes.value}
+              >{`${goalHours}:${goalMinutes}`}</span>
             </Text>
           </div>
         </Paper>

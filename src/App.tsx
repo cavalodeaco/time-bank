@@ -13,7 +13,7 @@ import { BuildingBank } from "tabler-icons-react";
 import { useThemeDetector } from "./utils/useThemeDetector";
 import Hero from "./Hero";
 import ReportByDay from "./ReportByDay";
-import { DateTime, Interval } from "luxon";
+import { DateTime, Duration, Interval } from "luxon";
 
 const useStyles = createStyles((theme) => ({
   listItem: {
@@ -28,10 +28,11 @@ export default function App() {
   document.title = "Time Bank";
   const isDarkTheme = useThemeDetector();
   const { classes } = useStyles();
+  const dailyGoal = Duration.fromISOTime('08:30:00.000');
   const [intervals, intervalsHandlers] = useListState<Interval>([
     Interval.fromDateTimes(
-      DateTime.fromISO("2023-04-24T10:00:00"),
-      DateTime.fromISO("2023-04-24T15:45:00")
+      DateTime.fromISO("2023-05-01T10:00:00"),
+      DateTime.fromISO("2023-05-01T15:45:00")
     ),
     Interval.fromDateTimes(
       DateTime.fromISO("2023-04-07T08:00:00"),
@@ -69,7 +70,7 @@ export default function App() {
         }
       >
         <Container p={0}>
-          <Hero intervals={intervals} />
+          <Hero intervals={intervals} dailyGoal={dailyGoal}/>
           <ReportByDay intervals={intervals} />
         </Container>
       </AppShell>
